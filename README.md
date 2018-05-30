@@ -18,8 +18,8 @@ A python game built using the following tutorial: <a href="https://www.raywender
 
 * Download/Clone/Fork this Repo!
     
-    cd Python-Game-master
+        cd Python-Game-master
 
-    python game.py
+        python game.py
 
 * Enjoy the gaming!
