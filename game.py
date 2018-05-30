@@ -36,6 +36,10 @@ def load_resources():
     # initializing global variables
     global player, grass, castle, arrow, gameover
     global badguyimg, badguyimg1, healthbar, health, youwin
+    global shoot, hit, enemy
+
+    # initializing mixer
+    pygame.mixer.init()
 
     # loading resources 
     player = pygame.image.load("resources/images/dude.png")
@@ -47,7 +51,18 @@ def load_resources():
     badguyimg1 = pygame.image.load("resources/images/badguy.png")
     gameover = pygame.image.load("resources/images/gameover.png")
     youwin = pygame.image.load("resources/images/youwin.png")
+    hit = pygame.mixer.Sound("resources/audio/explode.wav")
+    enemy = pygame.mixer.Sound("resources/audio/enemy.wav")
+    shoot = pygame.mixer.Sound("resources/audio/shoot.wav")
     badguyimg = badguyimg1
+
+    # setting up music
+    hit.set_volume(0.05)
+    enemy.set_volume(0.05)
+    shoot.set_volume(0.05)
+    pygame.mixer.music.load('resources/audio/moonlight.wav')
+    pygame.mixer.music.play(-1, 0.0)
+    pygame.mixer.music.set_volume(0.25)
 
 def draw_grass():
     """Drawing grass to the screen
@@ -130,7 +145,7 @@ def draw_bad_guys():
     """
     # referencing global variables
     global badtimer, badtimer1, badguys, badguyimg 
-    global healthvalue, accuracy, arrows
+    global healthvalue, accuracy, arrows, hit, enemy
 
     # check if its time to add a new bad guy to the screen
     if badtimer == 0:
@@ -158,6 +173,8 @@ def draw_bad_guys():
         badrect.top=badguy[1]
         badrect.left=badguy[0]
         if badrect.left<64:
+            # hit castle sound
+            hit.play()
             healthvalue -= random.randint(5,20)
             badguys.pop(index)
 
@@ -172,6 +189,8 @@ def draw_bad_guys():
 
             # checking for collision between arrow and badguy
             if badrect.colliderect(bullrect):
+                # enemy sound
+                enemy.play()
                 # a collision happened, increase accuracy?
                 accuracy[0]+=1
                 # removing bad guy and arrow from screen
@@ -279,7 +298,7 @@ def game_events():
     """Checking for game events
     """
     # referencing global variables
-    global keys, playerpos, accuracy, arrows, playerpos1
+    global keys, playerpos, accuracy, arrows, playerpos1, shoot
     # loop through events
     for event in pygame.event.get():
         # check if the event is the X button
@@ -309,6 +328,8 @@ def game_events():
                 keys[3] = False
         # checking if mouse was clicked AKA an arrow was fired!
         if event.type == pygame.MOUSEBUTTONDOWN:
+            # shoot sound
+            shoot.play()
             position = pygame.mouse.get_pos() # mouse position
             accuracy[1]+=1 # increase y accuracy
             # calculating the arrow rotation based on the rotated player 
