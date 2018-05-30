@@ -13,25 +13,28 @@ def game_init():
     """Initializing game
     """
     # initializing global variables
-    global screen, width, height, keys, playerpos
+    global screen, width, height, keys, playerpos, accuracy, arrows
     
-    # initializing game
+    # initializing game and game-related variables
     pygame.init()
     width, height = 640, 480 # screen width and height
     keys = [False, False, False, False] # game keys (WASD)
     playerpos=[100,100] # player position
+    accuracy =[0,0] # player's accuracy
+    arrows = [] # arrows
     screen = pygame.display.set_mode((width, height))
 
 def load_resources():
     """Loading game resources
     """
     # initializing global variables
-    global player, grass, castle
+    global player, grass, castle, arrow
 
     # loading resources 
     player = pygame.image.load("resources/images/dude.png")
     grass = pygame.image.load("resources/images/grass.png")
     castle = pygame.image.load("resources/images/castle.png")
+    arrow = pygame.image.load("resources/images/bullet.png")
 
 def draw_grass():
     """Drawing grass to the screen
@@ -62,7 +65,7 @@ def draw_player():
     """Drawing player with z rotation
     """
     # referencing global variables
-    global player, playerpos
+    global player, playerpos, playerpos1
     # calculazing z rotation value
     position = pygame.mouse.get_pos() # getting mouse position
     # calculating angle between mouse and player tan(angle) = (y2-y1)/(x2-x1)
@@ -82,11 +85,37 @@ def draw_player():
     # drawing player on the screen
     screen.blit(playerrot, playerpos1)
 
+def draw_arrows():
+    """Drawing the arrows fired by the player
+    """
+    # referencing global variables  
+    global arrow, arrows
+
+    for bullet in arrows:
+        index=0
+        # velocity vector components:
+        # x-component: cos(angle) * acceleration
+        # y-compoent: sin(angle) * acceleration
+        velx=math.cos(bullet[0])*10 # x-component of the velocity vector 
+        vely=math.sin(bullet[0])*10 # y-value of the velocity vector
+        # adding velocities to the arrows position components
+        bullet[1]+=velx
+        bullet[2]+=vely
+        # removing arrow from screen?
+        if bullet[1]<-64 or bullet[1]>640 or bullet[2]<-64 or bullet[2]>480:
+            arrows.pop(index)
+        index+=1
+
+        # drawing arrows on screen?
+        for projectile in arrows:
+            arrow1 = pygame.transform.rotate(arrow, 360-projectile[0]*57.29)
+            screen.blit(arrow1, (projectile[1], projectile[2]))
+
 def game_events():
     """Checking for game events
     """
     # referencing global variables
-    global keys, playerpos
+    global keys, playerpos, accuracy, arrows, playerpos1
     # loop through events
     for event in pygame.event.get():
         # check if the event is the X button
@@ -114,6 +143,19 @@ def game_events():
                 keys[2] = False
             if event.key == K_d: # 'd' key was pressed up
                 keys[3] = False
+        # checking if mouse was clicked AKA an arrow was fired!
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            position = pygame.mouse.get_pos() # mouse position
+            accuracy[1]+=1 # increase y accuracy
+            # calculating the arrow rotation based on the rotated player 
+            # position and the cursor position. 
+            # This rotation value is stored in the arrows array.
+            # arrow = (angle, x, y)
+            arrows.append(
+                [math.atan2(
+                    position[1]-(playerpos1[1]+32),
+                    position[0]-(playerpos1[0]+26)),
+                playerpos1[0]+32,playerpos1[1]+32])
 
     # updating player position based on which key was pressed 
     # AKA moving player
@@ -142,6 +184,8 @@ def game_loop():
         draw_castle()
         # drawing player
         draw_player()
+        # drawing arrows
+        draw_arrows()
         # update the screen
         pygame.display.flip()
         # loading game events

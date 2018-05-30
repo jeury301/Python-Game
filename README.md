@@ -1,5 +1,5 @@
 # Python-Game
-A python game built following the tutorial: <a href="https://www.raywenderlich.com/24252/beginning-game-programming-for-teens-with-python" title="Python Game Tutorial" target="_blank">RayWenderLich Python Game Tutorial</a>.
+A python game built using following the tutorial: <a href="https://www.raywenderlich.com/24252/beginning-game-programming-for-teens-with-python" title="Python Game Tutorial" target="_blank">RayWenderLich Python Game Tutorial</a>.
  
 # Prerequisites
 
