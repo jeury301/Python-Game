@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 from pygame.locals import *
 
 def main():
@@ -14,7 +15,8 @@ def game_init():
     """
     # initializing global variables
     global screen, width, height, keys, playerpos, accuracy, arrows
-    
+    global badtimer,badtimer1, badguys, healthvalue
+
     # initializing game and game-related variables
     pygame.init()
     width, height = 640, 480 # screen width and height
@@ -22,19 +24,30 @@ def game_init():
     playerpos=[100,100] # player position
     accuracy =[0,0] # player's accuracy
     arrows = [] # arrows
+    badtimer=100 # timer to decrease for bad guys to appear 
+    badtimer1=0 # timer to increase for bad guys to appear/disappear
+    badguys=[[640,100]] # bad guys initial opsition
+    healthvalue=194 # health value
     screen = pygame.display.set_mode((width, height))
 
 def load_resources():
     """Loading game resources
     """
     # initializing global variables
-    global player, grass, castle, arrow
+    global player, grass, castle, arrow, gameover
+    global badguyimg, badguyimg1, healthbar, health, youwin
 
     # loading resources 
     player = pygame.image.load("resources/images/dude.png")
     grass = pygame.image.load("resources/images/grass.png")
     castle = pygame.image.load("resources/images/castle.png")
     arrow = pygame.image.load("resources/images/bullet.png")
+    healthbar = pygame.image.load("resources/images/healthbar.png")
+    health = pygame.image.load("resources/images/health.png")
+    badguyimg1 = pygame.image.load("resources/images/badguy.png")
+    gameover = pygame.image.load("resources/images/gameover.png")
+    youwin = pygame.image.load("resources/images/youwin.png")
+    badguyimg = badguyimg1
 
 def draw_grass():
     """Drawing grass to the screen
@@ -91,6 +104,7 @@ def draw_arrows():
     # referencing global variables  
     global arrow, arrows
 
+    # updating arrows position with velocity components
     for bullet in arrows:
         index=0
         # velocity vector components:
@@ -101,15 +115,165 @@ def draw_arrows():
         # adding velocities to the arrows position components
         bullet[1]+=velx
         bullet[2]+=vely
-        # removing arrow from screen?
+        # removing arrow from screen
         if bullet[1]<-64 or bullet[1]>640 or bullet[2]<-64 or bullet[2]>480:
             arrows.pop(index)
         index+=1
 
-        # drawing arrows on screen?
-        for projectile in arrows:
-            arrow1 = pygame.transform.rotate(arrow, 360-projectile[0]*57.29)
-            screen.blit(arrow1, (projectile[1], projectile[2]))
+    # drawing arrows on screen
+    for projectile in arrows:
+        arrow1 = pygame.transform.rotate(arrow, 360-projectile[0]*57.29)
+        screen.blit(arrow1, (projectile[1], projectile[2]))
+
+def draw_bad_guys():
+    """Drawing bad guys 
+    """
+    # referencing global variables
+    global badtimer, badtimer1, badguys, badguyimg 
+    global healthvalue, accuracy, arrows
+
+    # check if its time to add a new bad guy to the screen
+    if badtimer == 0:
+        # ok, its tim to add a new bad guy
+        # adding a bad guy from any y-coordinate from the right of the screen
+        # with boundaries
+        badguys.append([640, random.randint(50,430)])
+        # reduce time for bad guys to appear
+        badtimer=100-(badtimer1*2)
+        # check for another timer
+        if badtimer1>=35:
+            badtimer1=35
+        else:
+            badtimer1+=5
+    index=0
+    for badguy in badguys:
+        # remove bad guys if they went off-screen
+        if badguy[0]<-64:
+            badguys.pop(index)
+        # reduce bad guys x-position (move to the left)
+        badguy[0]-=10 # use this variable to modify bad guys speed
+
+        # blowing up castle
+        badrect=pygame.Rect(badguyimg.get_rect())
+        badrect.top=badguy[1]
+        badrect.left=badguy[0]
+        if badrect.left<64:
+            healthvalue -= random.randint(5,20)
+            badguys.pop(index)
+
+        # keeping track of current arrow
+        index1=0
+
+        # checking for collision between bad guys and arrows
+        for bullet in arrows:
+            bullrect=pygame.Rect(arrow.get_rect()) # arrow rect
+            bullrect.left=bullet[1] # left?
+            bullrect.top=bullet[2] # top?
+
+            # checking for collision between arrow and badguy
+            if badrect.colliderect(bullrect):
+                # a collision happened, increase accuracy?
+                accuracy[0]+=1
+                # removing bad guy and arrow from screen
+                badguys.pop(index)
+                arrows.pop(index1)
+            index1+=1
+
+        # keeping track of current bad guy
+        index+=1
+
+    # drawing bad guys
+    for badguy in badguys:
+        screen.blit(badguyimg, badguy)
+
+def draw_clock():
+    """Drawing a timer
+    """
+    # creating a font with size
+    font = pygame.font.Font(None, 24) 
+    # rendering a text containing the current time
+    survivedtext = font.render(
+        (str((90000-pygame.time.get_ticks())/60000)+
+            ":"+str((90000-pygame.time.get_ticks())/1000%60).zfill(2)), 
+        True,(0,0,0))
+
+    # retrieving rect for text
+    textRect = survivedtext.get_rect()
+    # positioning text on top right corner
+    textRect.topright=[635,5]
+    # drawing text onto the screen
+    screen.blit(survivedtext, textRect)
+
+def draw_health():
+    """Drawing health bar
+    """
+    # referencing global variables
+    global healthbar, health, healthvalue
+
+    # drawing health  bar
+    screen.blit(healthbar, (5,5))
+    for health1 in range(healthvalue):
+        # according to how much value left, draw health
+        screen.blit(health, (health1+8,8))
+
+def check_for_end():
+    """Checking for the end of game
+    """
+    # referencing global variables
+    global running, exitcode, accuracy, gameover, accuracy_str
+
+    # check if game needs to end
+    if pygame.time.get_ticks()>=90000:
+        # time has elapsed
+        running=0
+        exitcode=1
+    if healthvalue<=0:
+        # player health is gone
+        running=0
+        exitcode=0
+    if accuracy[1]!=0:
+        accuracy_str=accuracy[0]*1.0/accuracy[1]*100
+    else:
+        accuracy_str=0
+
+def end_game():
+    """Ending game
+    """
+    # referencing global variables
+    global accuracy_str, gameover, youwin
+    # check if player won/lost        
+    if exitcode==0:
+        # player lost
+        pygame.font.init()
+        font = pygame.font.Font(None, 24) # creating font
+        # rendering text
+        text = font.render("Accuracy: "+str(accuracy_str)+"%", True, (255,0,0))
+        textRect = text.get_rect()
+        textRect.centerx = screen.get_rect().centerx
+        textRect.centery = screen.get_rect().centery+24
+        screen.blit(gameover, (0,0))
+        screen.blit(text, textRect) # adding text to screen
+    else:
+        # player won
+        pygame.font.init()
+        font = pygame.font.Font(None, 24) # creating font
+        # rendering text
+        text = font.render("Accuracy: "+str(accuracy_str)+"%", True, (0,255,0))
+        textRect = text.get_rect()
+        textRect.centerx = screen.get_rect().centerx
+        textRect.centery = screen.get_rect().centery+24
+        screen.blit(youwin, (0,0))
+        screen.blit(text, textRect) # adding text to screen
+
+    pygame.display.flip()
+    
+    # giving user the ability to quit game
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit(0)
+
 
 def game_events():
     """Checking for game events
@@ -172,24 +336,32 @@ def game_loop():
     """Infinite game loop
     """
     # referencing global variables
-    global screen
+    global screen, badtimer
+    # initializing global variables
+    global running, exitcode
+    
+    running = 1 # use to determine if player wins or loses
+    exitcode = 0 # use to determine if game should be finished
 
     # keeping looping through game
-    while True:
+    while running:
         # clear screen before drawing it again
         screen.fill(0)
-        # drawing grass
-        draw_grass()
-        # drawing castle(s)
-        draw_castle()
-        # drawing player
-        draw_player()
-        # drawing arrows
-        draw_arrows()
-        # update the screen
-        pygame.display.flip()
-        # loading game events
-        game_events()
+        draw_grass() # drawing grass
+        draw_castle() # drawing castle(s)
+        draw_player() # drawing player
+        draw_arrows() # drawing arrows
+        draw_bad_guys() # drawing bad guys
+        draw_clock() # drawing a clock
+        draw_health() # drawing health!
+        pygame.display.flip() # update the screen
+        game_events() # loading game events
+        # updating bad time for guys to appear
+        badtimer-=1
+        # checking for end game
+        check_for_end()
+    # ending game
+    end_game()
 
 if __name__ == "__main__":
     main()
