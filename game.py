@@ -151,7 +151,7 @@ def draw_bad_guys():
         if badguy[0]<-64:
             badguys.pop(index)
         # reduce bad guys x-position (move to the left)
-        badguy[0]-=10 # use this variable to modify bad guys speed
+        badguy[0]-=5 # use this variable to modify bad guys speed
 
         # blowing up castle
         badrect=pygame.Rect(badguyimg.get_rect())
