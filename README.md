@@ -26,10 +26,6 @@ A python game built using the following tutorial: <a href="https://www.raywender
 
 # Gameplay
 
-### Click thumbnail to watch
+### Click below to watch full video
 
-[![Nameless Python Game](http://img.youtube.com/vi/csoYfiCFju4/0.jpg)](http://www.youtube.com/watch?v=csoYfiCFju4?start=60 "Nameless Python Game")
-
-<!--
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/csoYfiCFju4?start=60" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
--->
+[![Nameless Python Game alpha](https://media.giphy.com/media/3miWwsuMZFdPQG1moU/giphy.gif)](http://www.youtube.com/watch?v=csoYfiCFju4?start=60)
