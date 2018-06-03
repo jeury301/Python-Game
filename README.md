@@ -23,3 +23,7 @@ A python game built using the following tutorial: <a href="https://www.raywender
         python game.py
 
 * Enjoy the gaming!
+
+# Gameplay
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/csoYfiCFju4?start=60" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
