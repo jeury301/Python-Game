@@ -23,7 +23,7 @@ fi
 if ! [[ -d .git ]]; then
     cd ..
 fi
-echo pwd
+
 # adding all files to git
 git add -A
 # commit message
