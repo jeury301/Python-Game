@@ -24,6 +24,20 @@ A python game built using the following tutorial: <a href="https://www.raywender
 
 * Enjoy the gaming!
 
+# Controls
+
+mouse click - Shoot
+
+w - Move up
+
+s - Move down
+
+a - Move left
+
+d - Move right
+
+mouse hover - Rotate
+
 # Gameplay
 
 ### Click below to watch full video
