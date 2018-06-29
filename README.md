@@ -1,23 +1,27 @@
 # Python-Game
 > A python game built using the following tutorial: <a href="https://www.raywenderlich.com/24252/beginning-game-programming-for-teens-with-python" title="Python Game Tutorial" target="_blank">RayWenderLich Python Game Tutorial</a>.
- 
+
+# Read the Docs
+
+> Clean documentation on read-the-docs - <strong><a href="https://python-game.readthedocs.io/" title="Read Python Game Docs" target="_blank">Check it out!</a></strong>
+
 # Prerequisites
 
 * Install Python
 * Install Pygame:
 
     Python 3:
-    
+
         python3 -m pip install -U pygame --user
-    
-    Python: 
-    
+
+    Python:
+
         python -m pip install -U pygame --user
 
 # Run Game
 
 * Download/Clone/Fork this Repo!
-    
+
         cd Python-Game-master
 
         python game.py
